@@ -8,6 +8,10 @@ package secureemailclient.applet;
 import java.util.List;
 
 import com.google.api.services.gmail.model.Message;
+import java.io.IOException;
+import java.util.ArrayList;
+import javax.mail.MessagingException;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -18,8 +22,21 @@ public class MessageListPanel extends javax.swing.JPanel {
     /**
      * Creates new form MessageListPanel
      */
-    public MessageListPanel() {
+    public MessageListPanel(String label) {
         initComponents();
+        
+        // hide the id
+        jTableMessages.removeColumn(jTableMessages.getColumnModel().getColumn(3));
+
+        List<String> labels = new ArrayList<String>();
+        labels.add(label);
+        try {
+            loadMessageList(GmailHelper.listMessagesWithLabels(GmailAuth.getService(), "me", labels));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -32,25 +49,36 @@ public class MessageListPanel extends javax.swing.JPanel {
     private void initComponents() {
 
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        jTableMessages = new javax.swing.JTable();
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        jTableMessages.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "Recipient", "Snippet", "Time"
+                "Recipient", "Snippet", "Time", "Message Id"
             }
-        ));
-        jScrollPane1.setViewportView(jTable1);
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jTableMessages.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jTableMessagesMouseClicked(evt);
+            }
+        });
+        jScrollPane1.setViewportView(jTableMessages);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 399, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 343, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -58,12 +86,29 @@ public class MessageListPanel extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    public void loadMessage(List<Message> messageList) {
+    private void jTableMessagesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTableMessagesMouseClicked
+        if (evt.getClickCount() == 2) {
+            int row = jTableMessages.getSelectedRow();
+            System.out.println("Selected row: " + row);
+            String messageId = jTableMessages.getModel().getValueAt(row, 3).toString();
+            System.out.println("Selected message: " + messageId);
+        }
+    }//GEN-LAST:event_jTableMessagesMouseClicked
 
+    public void loadMessageList(List<Message> messageList) {
+        DefaultTableModel model = (DefaultTableModel) jTableMessages.getModel();
+        model.setRowCount(0);
+        for (Message message : messageList) {
+            model.addRow(new Object[]{message.getId(), message.getSnippet(), message.getThreadId(), message.getId()});
+        }
+    }
+    
+    public void loadMessage(String messageId) {
+        
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
+    private javax.swing.JTable jTableMessages;
     // End of variables declaration//GEN-END:variables
 }

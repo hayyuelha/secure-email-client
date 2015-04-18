@@ -3,8 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package secureemailclient.applet;
+
+import java.awt.BorderLayout;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
 
 /**
  *
@@ -33,7 +38,7 @@ public class MainFrame extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTree1 = new javax.swing.JTree();
+        jTreeMessageLabels = new javax.swing.JTree();
         jPanelMain = new javax.swing.JPanel();
 
         javax.swing.GroupLayout jLayeredPane2Layout = new javax.swing.GroupLayout(jLayeredPane2);
@@ -65,8 +70,13 @@ public class MainFrame extends javax.swing.JFrame {
         treeNode1.add(treeNode2);
         treeNode2 = new javax.swing.tree.DefaultMutableTreeNode("Sent");
         treeNode1.add(treeNode2);
-        jTree1.setModel(new javax.swing.tree.DefaultTreeModel(treeNode1));
-        jScrollPane1.setViewportView(jTree1);
+        jTreeMessageLabels.setModel(new javax.swing.tree.DefaultTreeModel(treeNode1));
+        jTreeMessageLabels.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jTreeMessageLabelsMouseClicked(evt);
+            }
+        });
+        jScrollPane1.setViewportView(jTreeMessageLabels);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -121,6 +131,28 @@ public class MainFrame extends javax.swing.JFrame {
 //        jPanelMain.repaint();
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private void jTreeMessageLabelsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTreeMessageLabelsMouseClicked
+        TreePath path = jTreeMessageLabels.getPathForLocation(evt.getX(), evt.getY());
+        if (path != null && evt.getClickCount() == 2) {
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode)path.getLastPathComponent();
+            if (node.isLeaf()) {
+                // display a table
+                loadPanel(new MessageListPanel(node.getUserObject().toString().toUpperCase()));
+                System.out.println("Leaf: " + node.getUserObject());
+            }
+        }
+
+    }//GEN-LAST:event_jTreeMessageLabelsMouseClicked
+
+    private void loadPanel(JPanel panel) {
+        jPanelMain.removeAll();
+//        jPanelMain.setLayout(null);
+        jPanelMain.setLayout(new java.awt.BorderLayout());
+        jPanelMain.add(panel, BorderLayout.CENTER);
+        jPanelMain.revalidate();
+        jPanelMain.repaint();        
+    }
+    
     /**
      * @param args the command line arguments
      */
@@ -163,6 +195,6 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JPanel jPanelMain;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSplitPane jSplitPane1;
-    private javax.swing.JTree jTree1;
+    private javax.swing.JTree jTreeMessageLabels;
     // End of variables declaration//GEN-END:variables
 }
