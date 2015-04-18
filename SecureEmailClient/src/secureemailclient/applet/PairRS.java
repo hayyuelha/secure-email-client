@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package ecc;
+package secureemailclient.applet;
 
 import java.math.BigInteger;
 
@@ -39,5 +39,13 @@ public class PairRS {
         System.arraycopy(sArr, 0, ret, rArr.length, sArr.length);
         
         return ret;
+    }
+    
+    public byte[] RtoArrayBytes(){
+        return r.toByteArray();
+    }
+    
+    public byte[] StoArrayBytes(){
+        return s.toByteArray();
     }
 }

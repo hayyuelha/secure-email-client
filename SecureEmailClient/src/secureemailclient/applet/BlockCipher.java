@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package ecc;
+package secureemailclient.applet;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;

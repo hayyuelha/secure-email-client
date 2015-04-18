@@ -1,4 +1,4 @@
-package ecc;
+package secureemailclient.applet;
 
 /**
  * The class will contain a pair of public key and private key.

@@ -1,4 +1,4 @@
-package ecc;
+package secureemailclient.applet;
 
 import java.math.BigInteger;
 
