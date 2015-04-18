@@ -8,6 +8,7 @@ package secureemailclient.applet;
 
 import java.awt.Desktop;
 import java.net.URI;
+import javax.swing.JFrame;
 
 /**
  *
@@ -32,7 +33,7 @@ public class AuthFrame extends javax.swing.JFrame {
     private void initComponents() {
 
         jLabel1 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
+        txtAuthCode = new javax.swing.JTextField();
         btnGetCode = new javax.swing.JButton();
         btnLogIn = new javax.swing.JButton();
         lblMessage = new javax.swing.JLabel();
@@ -64,7 +65,7 @@ public class AuthFrame extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jTextField1)
+                    .addComponent(txtAuthCode)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(lblMessage)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 134, Short.MAX_VALUE)
@@ -83,7 +84,7 @@ public class AuthFrame extends javax.swing.JFrame {
                     .addComponent(jLabel1)
                     .addComponent(btnGetCode))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(txtAuthCode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnLogIn)
@@ -114,12 +115,22 @@ public class AuthFrame extends javax.swing.JFrame {
     private void btnLogInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogInActionPerformed
         lblMessage.setText("Authenticating ...");
         
+        JFrame thisFrame = this;
+        
         // check auth
-        if (!GmailAuth.checkCode(lblMessage.getText())) {
-            lblMessage.setText("Authentication failed");
-        } else {
-            lblMessage.setText("Authentication done");
-        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (!GmailAuth.checkCode(txtAuthCode.getText())) {
+                    lblMessage.setText("Authentication failed");
+                } else {
+                    lblMessage.setText("Authentication done");
+                    JFrame mainFrame = new MainFrame();
+                    mainFrame.setVisible(true);
+                    thisFrame.setVisible(false);
+                }
+            }
+        }).start();
     }//GEN-LAST:event_btnLogInActionPerformed
 
     /**
@@ -161,7 +172,7 @@ public class AuthFrame extends javax.swing.JFrame {
     private javax.swing.JButton btnGetCode;
     private javax.swing.JButton btnLogIn;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JTextField jTextField1;
     private javax.swing.JLabel lblMessage;
+    private javax.swing.JTextField txtAuthCode;
     // End of variables declaration//GEN-END:variables
 }
