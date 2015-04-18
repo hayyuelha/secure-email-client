@@ -26,7 +26,7 @@ public class ECC {
      * @param key
      * @return 
      */
-    public static PairRS createSignature(byte[] plainText, PrivateKey key) throws Exception {
+    public static PairRS createSignature(String plainText, PrivateKey key) throws Exception {
         initializeExecutionTime();
         
         EllipticCurve c = key.getCurve();
@@ -38,12 +38,14 @@ public class ECC {
         int blockSize = getBlockSize(c);
         int cipherTextBlockSize = getCipherTextBlockSize(c);
         
-        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        SHA1 sha = new SHA1();
+        sha.setMsg(plainText);
+        sha.buildMD();
         
-        byte[] hash = md.digest(plainText);
+        byte[] hash = sha.getMD().getBytes();
         
         // Pad the plainText
-        byte[] padded = pad(plainText, blockSize);
+        
         Random rnd = new Random(System.currentTimeMillis());
         
         BigInteger k = new BigInteger(n.bitLength(),rnd).mod(n.subtract(new BigInteger("1"))).add(new BigInteger("1"));
@@ -136,7 +138,7 @@ public class ECC {
     }
     
     
-    public static boolean verify(byte[] plainText, PublicKey key,PairRS rs) throws Exception {
+    public static boolean verify(String plainText, PublicKey key,PairRS rs) throws Exception {
         initializeExecutionTime();
         
         EllipticCurve c = key.getCurve();
@@ -152,9 +154,11 @@ public class ECC {
             return false;
         }
         
-        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        SHA1 sha = new SHA1();
+        sha.setMsg(plainText);
+        sha.buildMD();
         
-        byte[] hash = md.digest(plainText);
+        byte[] hash = sha.getMD().getBytes();
         
         BigInteger e = new BigInteger(hash);
         
@@ -525,12 +529,12 @@ public class ECC {
 "\n" +
 "serta dengan mewujudkan suatu keadilan sosial bagi seluruh rakyat Indonesia.\" ";
         
-        PairRS rs = ECC.createSignature(s.getBytes(), kp.getPrivateKey());
+        PairRS rs = ECC.createSignature(s, kp.getPrivateKey());
         
         rs.r = rs.r.multiply(new BigInteger("1"));
         
         
-        if(ECC.verify(s.getBytes(), kp.getPublicKey(), rs)){
+        if(ECC.verify(s, kp.getPublicKey(), rs)){
             System.out.println("benar");
         }
         else{
