@@ -8,10 +8,13 @@ package secureemailclient.applet;
 import java.util.List;
 
 import com.google.api.services.gmail.model.Message;
+import com.google.api.services.gmail.model.MessagePart;
+import com.google.api.services.gmail.model.MessagePartHeader;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.mail.MessagingException;
 import javax.swing.table.DefaultTableModel;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 /**
  *
@@ -24,14 +27,14 @@ public class MessageListPanel extends javax.swing.JPanel {
      */
     public MessageListPanel(String label) {
         initComponents();
-        
+
         // hide the id
         jTableMessages.removeColumn(jTableMessages.getColumnModel().getColumn(3));
 
         List<String> labels = new ArrayList<String>();
         labels.add(label);
         try {
-            loadMessageList(GmailHelper.listMessagesWithLabels(GmailAuth.getService(), "me", labels));
+            loadMessageList(GmailHelper.listMessagesWithLabels(GmailAuth.getService(), "me", labels, 10));
         } catch (IOException e) {
             e.printStackTrace();
         } catch (MessagingException e) {
@@ -92,6 +95,7 @@ public class MessageListPanel extends javax.swing.JPanel {
             System.out.println("Selected row: " + row);
             String messageId = jTableMessages.getModel().getValueAt(row, 3).toString();
             System.out.println("Selected message: " + messageId);
+            loadMessage(messageId);
         }
     }//GEN-LAST:event_jTableMessagesMouseClicked
 
@@ -99,12 +103,38 @@ public class MessageListPanel extends javax.swing.JPanel {
         DefaultTableModel model = (DefaultTableModel) jTableMessages.getModel();
         model.setRowCount(0);
         for (Message message : messageList) {
-            model.addRow(new Object[]{message.getId(), message.getSnippet(), message.getThreadId(), message.getId()});
+            MessagePart payload = message.getPayload();
+
+            String date = null, from = null, to = null, subject = null;
+
+            List<MessagePartHeader> headers = payload.getHeaders();
+            for (MessagePartHeader header : headers) {
+                switch (header.getName()) {
+                    case "To":
+                        to = header.getValue();
+                        break;
+                    case "From":
+                        from = header.getValue();
+                        break;
+                    case "Subject":
+                        subject = header.getValue();
+                        break;
+                    case "Date":
+                        date = header.getValue();
+                        break;
+                }
+            }
+
+            model.addRow(new Object[]{to, "<html>" + StringEscapeUtils.unescapeHtml4(message.getSnippet()) + "</html>", date, message.getId()});
         }
     }
-    
+
     public void loadMessage(String messageId) {
-        
+        try {
+            (new ViewMailFrame(GmailHelper.getMessage(GmailAuth.getService(), "me", messageId))).setVisible(true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

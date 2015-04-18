@@ -102,12 +102,13 @@ public class GmailHelper {
      * @throws IOException
      */
     public static List<Message> listMessagesWithLabels(Gmail service, String userId,
-            List<String> labelIds) throws IOException, MessagingException {
+            List<String> labelIds, Integer limit) throws IOException, MessagingException {
         ListMessagesResponse response = service.users().messages().list(userId)
                 .setLabelIds(labelIds).execute();
 
         List<Message> messages = new ArrayList<>();
-        while (response.getMessages() != null) {
+        if (limit == 0) limit = Integer.MAX_VALUE;
+        while (response.getMessages() != null && messages.size() < limit) {
             messages.addAll(response.getMessages());
             if (response.getNextPageToken() != null) {
                 String pageToken = response.getNextPageToken();
@@ -124,7 +125,8 @@ public class GmailHelper {
         MimeMessage m;
         for (Message message : messages) {
             allMessages.add(getMessage(service, userId, message.getId()));
-            System.out.println(message.toPrettyString());
+            if (allMessages.size() >= limit) break;
+//            System.out.println(message.toPrettyString());
 //            m = getMimeMessage(service, userId, message.getId());
         }
 

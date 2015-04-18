@@ -5,6 +5,9 @@
  */
 package secureemailclient.applet;
 
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+
 /**
  *
  * @author Toshiba
@@ -15,6 +18,19 @@ public class SecureEmailClient {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        //Set the look and feel to users OS LaF.
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (UnsupportedLookAndFeelException e) {
+            e.printStackTrace();
+        }
+        
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new AuthFrame().setVisible(true);
