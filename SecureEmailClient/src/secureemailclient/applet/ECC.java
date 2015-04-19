@@ -511,30 +511,17 @@ public class ECC {
         
         KeyPair kp = ECC.generateKeyPair(c, rnd);
         
-        String s = "Pembukaan UUD 1945\n" +
-"\n" +
-"\"Bahwa sesungguhnya kemerdekaan itu ialah hak segala bangsa dan oleh sebab itu, maka penjajahan diatas dunia harus dihapuskan karena tidak sesuai dengan perikemanusiaan dan perikeadilan.\"\n" +
-"\n" +
-"\"Dan perjuangan pergerakan kemerdekaan Indonesia telah sampailah kepada saat yang berbahagia dengan selamat sentosa mengantarkan rakyat Indonesia ke depan pintu gerbang kemerdekaan negara Indonesia, yang merdeka, bersatu, berdaulat, adil dan makmur.\"\n" +
-"\n" +
-"\"Atas berkat rahmat Allah Yang Maha Kuasa dan dengan didorongkan oleh keinginan luhur, supaya berkehidupan kebangsaan yang bebas, maka rakyat Indonesia menyatakan dengan ini kemerdekaannya.\"\n" +
-"\n" +
-"\"Kemudian daripada itu untuk membentuk suatu pemerintah negara Indonesia yang melindungi segenap bangsa Indonesia dan seluruh tumpah darah Indonesia dan untuk memajukan kesejahteraan umum, mencerdaskan kehidupan bangsa, dan ikut melaksanakan ketertiban dunia yang berdasarkan kemerdekaan, perdamaian abadi dan keadilan sosial, maka disusunlah kemerdekaan kebangsaan Indonesia itu dalam suatu Undang-Undang Dasar negara Indonesia, yang terbentuk dalam suatu susunan negara Republik Indonesia yang berkedaulatan rakyat dengan berdasar kepada :\n" +
-"\n" +
-"Ketuhanan Yang Maha Esa,\n" +
-"\n" +
-"kemanusiaan yang adil dan beradab,\n" +
-"\n" +
-"persatuan Indonesia, dan kerakyatan yang dipimpin oleh hikmat kebijaksanaan dalam permusyawaratan/perwakilan,\n" +
-"\n" +
-"serta dengan mewujudkan suatu keadilan sosial bagi seluruh rakyat Indonesia.\" ";
+        String s = "ya udah lah ya, tinggalin aja";
         
-        PairRS rs = ECC.createSignature(s, kp.getPrivateKey());
+      //  PairRS rs = ECC.createSignature(s, kp.getPrivateKey());
         
-        rs.r = rs.r.multiply(new BigInteger("1"));
+      //  rs.r = rs.r.multiply(new BigInteger("1"));
         
+        PairRS rss = new PairRS(new BigInteger("49842a48b67aa475eefd985b9d68c9b847085c014227f040",16),new BigInteger("973506689ec55436f5e7c54744076115f2899ec63da64a43",16));
         
-        if(ECC.verify(s, kp.getPublicKey(), rs)){
+        PublicKey pbk = new PublicKey(c,new ECPoint(new BigInteger("b09f0fb952e912d2c69999262eac819650e832471b602742",16),new BigInteger("c2b59fe5a388b0f88bcec288be375dded5d0fecdb2eb3554",16)));
+        
+        if(ECC.verify(s, pbk, rss)){
             System.out.println("benar");
         }
         else{

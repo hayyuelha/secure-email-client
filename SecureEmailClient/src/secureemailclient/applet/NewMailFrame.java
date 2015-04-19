@@ -22,6 +22,16 @@ public class NewMailFrame extends javax.swing.JFrame {
      * Creates new form NewMailFrame
      */
     
+    public static byte[] hexStringToByteArray(String s) {
+        int len = s.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
+                                 + Character.digit(s.charAt(i+1), 16));
+        }
+        return data;
+    }
+    
     private SignFrame sf;
     
     public NewMailFrame() {
@@ -175,9 +185,9 @@ public class NewMailFrame extends javax.swing.JFrame {
             try {
                 PairRS rs = ECC.createSignature(body, sf.getPrivateKey());
 
-                String r = new String(rs.RtoArrayBytes());
+                String r = rs.getRString();
 
-                String s = new String(rs.StoArrayBytes());
+                String s = rs.getSString();
 
                 body+="\n//DIGITAL SIGNATURE//\n"+r+"\n"+s;
 
