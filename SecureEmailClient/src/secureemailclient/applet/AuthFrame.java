@@ -6,12 +6,15 @@
 package secureemailclient.applet;
 
 import java.awt.Desktop;
+import java.awt.HeadlessException;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
+import java.io.IOException;
 import java.net.URI;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
@@ -139,11 +142,16 @@ public class AuthFrame extends javax.swing.JFrame {
                 try {
                     desktop.browse(new URI(url));
                 } catch (Exception e) {
+                    JOptionPane.showMessageDialog(rootPane, e.getMessage());
                     e.printStackTrace();
                 }
             }
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (HeadlessException e) {
+            JOptionPane.showMessageDialog(rootPane, e.getMessage());
+            e.printStackTrace();
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(rootPane, e.getMessage());
+            e.printStackTrace();
         }
     }//GEN-LAST:event_btnGetCodeActionPerformed
 

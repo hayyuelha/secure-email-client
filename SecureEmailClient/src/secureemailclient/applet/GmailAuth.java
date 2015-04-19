@@ -19,6 +19,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.gmail.Gmail;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.Arrays;
 
 /**
@@ -31,8 +32,7 @@ public class GmailAuth {
     private static final String APP_NAME = "Gmail API Quickstart";
     // Email address of the user, or "me" can be used to represent the currently authorized user.
     private static final String USER = "me";
-    // Path to the client_secret.json file downloaded from the Developer Console
-    private static final String CLIENT_SECRET_PATH = "gmail/client_secret_1040270241513-rasnlf68im6ul5qf4d8a4jlvq7o8phao.apps.googleusercontent.com.json";
+    private static String CLIENT_SECRET_JSON = "{\"installed\":{\"auth_uri\":\"https://accounts.google.com/o/oauth2/auth\",\"client_secret\":\"YMmRlSKThWVb1HR1gfZ_1uCC\",\"token_uri\":\"https://accounts.google.com/o/oauth2/token\",\"client_email\":\"\",\"redirect_uris\":[\"urn:ietf:wg:oauth:2.0:oob\",\"oob\"],\"client_x509_cert_url\":\"\",\"client_id\":\"1040270241513-rasnlf68im6ul5qf4d8a4jlvq7o8phao.apps.googleusercontent.com\",\"auth_provider_x509_cert_url\":\"https://www.googleapis.com/oauth2/v1/certs\"}}";
 
     private static GoogleClientSecrets clientSecrets = null;
     private static GoogleAuthorizationCodeFlow flow = null;
@@ -48,7 +48,7 @@ public class GmailAuth {
         HttpTransport httpTransport = new NetHttpTransport();
         JsonFactory jsonFactory = new JacksonFactory();
 
-        clientSecrets = GoogleClientSecrets.load(jsonFactory,  new FileReader(CLIENT_SECRET_PATH));
+        clientSecrets = GoogleClientSecrets.load(jsonFactory,  new StringReader(CLIENT_SECRET_JSON));
 
         // Allow user to authorize via url.
         flow = new GoogleAuthorizationCodeFlow.Builder(

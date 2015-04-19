@@ -4,15 +4,19 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/E:/Dropbox/ITB/IF/Semester%206/IF4020%20-%20Kriptografi/tubes%202/secure-email-client/SecureEmailClient/src/secureemailclient/applet/MainFrame.java</file>
-            <file>file:/E:/Dropbox/ITB/IF/Semester%206/IF4020%20-%20Kriptografi/tubes%202/secure-email-client/SecureEmailClient/src/secureemailclient/applet/AuthFrame.java</file>
-            <file>file:/E:/Dropbox/ITB/IF/Semester%206/IF4020%20-%20Kriptografi/tubes%202/secure-email-client/SecureEmailClient/src/secureemailclient/applet/NewMailApplet.java</file>
-            <file>file:/E:/Dropbox/ITB/IF/Semester%206/IF4020%20-%20Kriptografi/tubes%202/secure-email-client/SecureEmailClient/src/secureemailclient/applet/NewMailPanel.java</file>
             <file>file:/E:/Dropbox/ITB/IF/Semester%206/IF4020%20-%20Kriptografi/tubes%202/secure-email-client/SecureEmailClient/src/secureemailclient/applet/ViewMailFrame.java</file>
-            <file>file:/E:/Dropbox/ITB/IF/Semester%206/IF4020%20-%20Kriptografi/tubes%202/secure-email-client/SecureEmailClient/src/secureemailclient/cobacoba/GmailApiQuickStart.java</file>
+            <file>file:/E:/Dropbox/ITB/IF/Semester%206/IF4020%20-%20Kriptografi/tubes%202/secure-email-client/SecureEmailClient/src/secureemailclient/applet/SignFrame.java</file>
             <file>file:/E:/Dropbox/ITB/IF/Semester%206/IF4020%20-%20Kriptografi/tubes%202/secure-email-client/SecureEmailClient/src/secureemailclient/applet/NewMailFrame.java</file>
-            <file>file:/E:/Dropbox/ITB/IF/Semester%206/IF4020%20-%20Kriptografi/tubes%202/secure-email-client/SecureEmailClient/src/secureemailclient/applet/GmailHelper.java</file>
             <file>file:/E:/Dropbox/ITB/IF/Semester%206/IF4020%20-%20Kriptografi/tubes%202/secure-email-client/SecureEmailClient/src/secureemailclient/applet/MessageListPanel.java</file>
+            <file>file:/E:/Dropbox/ITB/IF/Semester%206/IF4020%20-%20Kriptografi/tubes%202/secure-email-client/SecureEmailClient/src/secureemailclient/crypto/blockcipher/BlockCipher.java</file>
             <file>file:/E:/Dropbox/ITB/IF/Semester%206/IF4020%20-%20Kriptografi/tubes%202/secure-email-client/SecureEmailClient/src/secureemailclient/applet/SecureEmailClient.java</file>
+            <file>file:/E:/Dropbox/ITB/IF/Semester%206/IF4020%20-%20Kriptografi/tubes%202/secure-email-client/SecureEmailClient/src/secureemailclient/crypto/CryptoHelper.java</file>
+            <file>file:/E:/Dropbox/ITB/IF/Semester%206/IF4020%20-%20Kriptografi/tubes%202/secure-email-client/SecureEmailClient/src/secureemailclient/applet/BlockCipherKeyFrame.java</file>
+            <file>file:/E:/Dropbox/ITB/IF/Semester%206/IF4020%20-%20Kriptografi/tubes%202/secure-email-client/SecureEmailClient/src/secureemailclient/applet/AuthFrame.java</file>
+            <file>file:/E:/Dropbox/ITB/IF/Semester%206/IF4020%20-%20Kriptografi/tubes%202/secure-email-client/SecureEmailClient/src/secureemailclient/cobacoba/GmailApiQuickStart.java</file>
+            <file>file:/E:/Dropbox/ITB/IF/Semester%206/IF4020%20-%20Kriptografi/tubes%202/secure-email-client/SecureEmailClient/src/secureemailclient/applet/GmailHelper.java</file>
+            <file>file:/E:/Dropbox/ITB/IF/Semester%206/IF4020%20-%20Kriptografi/tubes%202/secure-email-client/SecureEmailClient/src/secureemailclient/crypto/ecc/ECC.java</file>
+            <file>file:/E:/Dropbox/ITB/IF/Semester%206/IF4020%20-%20Kriptografi/tubes%202/secure-email-client/SecureEmailClient/src/secureemailclient/applet/MailDecryptFrame.java</file>
         </group>
     </open-files>
 </project-private>
