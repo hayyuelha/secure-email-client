@@ -7,6 +7,7 @@ package secureemailclient.applet;
 
 import java.awt.BorderLayout;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -24,6 +25,7 @@ public class MainFrame extends javax.swing.JFrame {
      */
     public MainFrame() {
         initComponents();
+        setTitle(SecureEmailClient.APP_NAME);
     }
 
     /**
@@ -71,6 +73,10 @@ public class MainFrame extends javax.swing.JFrame {
         treeNode2 = new javax.swing.tree.DefaultMutableTreeNode("Draft");
         treeNode1.add(treeNode2);
         treeNode2 = new javax.swing.tree.DefaultMutableTreeNode("Sent");
+        treeNode1.add(treeNode2);
+        treeNode2 = new javax.swing.tree.DefaultMutableTreeNode("Trash");
+        treeNode1.add(treeNode2);
+        treeNode2 = new javax.swing.tree.DefaultMutableTreeNode("Spam");
         treeNode1.add(treeNode2);
         jTreeMessageLabels.setModel(new javax.swing.tree.DefaultTreeModel(treeNode1));
         jTreeMessageLabels.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -137,11 +143,23 @@ public class MainFrame extends javax.swing.JFrame {
     private void jTreeMessageLabelsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTreeMessageLabelsMouseClicked
         TreePath path = jTreeMessageLabels.getPathForLocation(evt.getX(), evt.getY());
         if (path != null && evt.getClickCount() == 2) {
-            DefaultMutableTreeNode node = (DefaultMutableTreeNode)path.getLastPathComponent();
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
             if (node.isLeaf()) {
+                // add loading label
+                jPanelMain.removeAll();
+                jPanelMain.setLayout(new java.awt.BorderLayout());
+                jPanelMain.add(new JLabel("Loading ..."), BorderLayout.NORTH);
+                jPanelMain.revalidate();
+                jPanelMain.repaint();
+
                 // display a table
-                loadPanel(new MessageListPanel(node.getUserObject().toString().toUpperCase()));
-                System.out.println("Leaf: " + node.getUserObject());
+                new Thread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        loadPanel(new MessageListPanel(node.getUserObject().toString().toUpperCase()));
+                    }
+                }).start();
             }
         }
 
@@ -149,13 +167,12 @@ public class MainFrame extends javax.swing.JFrame {
 
     private void loadPanel(JPanel panel) {
         jPanelMain.removeAll();
-//        jPanelMain.setLayout(null);
         jPanelMain.setLayout(new java.awt.BorderLayout());
         jPanelMain.add(panel, BorderLayout.CENTER);
         jPanelMain.revalidate();
-        jPanelMain.repaint();        
+        jPanelMain.repaint();
     }
-    
+
     /**
      * @param args the command line arguments
      */

@@ -100,7 +100,7 @@
                 <Component class="javax.swing.JTree" name="jTreeMessageLabels">
                   <Properties>
                     <Property name="model" type="javax.swing.tree.TreeModel" editor="org.netbeans.modules.form.editors2.TreeModelEditor">
-                      <TreeModel code="All Messages&#xa;        Inbox&#xa;        Draft&#xa;        Sent"/>
+                      <TreeModel code="All Messages&#xa;        Inbox&#xa;        Draft&#xa;        Sent&#xa;        Trash&#xa;        Spam"/>
                     </Property>
                   </Properties>
                   <Events>

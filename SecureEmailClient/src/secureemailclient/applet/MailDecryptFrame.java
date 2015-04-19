@@ -20,6 +20,7 @@ public class MailDecryptFrame extends javax.swing.JFrame {
     public MailDecryptFrame(ViewMailFrame parent) {
         initComponents();
         this.parent = parent;
+        setTitle(SecureEmailClient.APP_NAME + " - Decrypt Mail");
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     }
     
@@ -77,6 +78,7 @@ public class MailDecryptFrame extends javax.swing.JFrame {
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButtonSubmitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSubmitActionPerformed

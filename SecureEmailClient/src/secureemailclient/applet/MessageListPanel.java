@@ -92,9 +92,7 @@ public class MessageListPanel extends javax.swing.JPanel {
     private void jTableMessagesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTableMessagesMouseClicked
         if (evt.getClickCount() == 2) {
             int row = jTableMessages.getSelectedRow();
-            System.out.println("Selected row: " + row);
             String messageId = jTableMessages.getModel().getValueAt(row, 3).toString();
-            System.out.println("Selected message: " + messageId);
             loadMessage(messageId);
         }
     }//GEN-LAST:event_jTableMessagesMouseClicked
@@ -130,11 +128,7 @@ public class MessageListPanel extends javax.swing.JPanel {
     }
 
     public void loadMessage(String messageId) {
-        try {
-            (new ViewMailFrame(GmailHelper.getMessage(GmailAuth.getService(), "me", messageId))).setVisible(true);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        (new ViewMailFrame(messageId)).setVisible(true);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

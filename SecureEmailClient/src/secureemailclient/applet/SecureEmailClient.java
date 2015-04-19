@@ -13,6 +13,8 @@ import javax.swing.UnsupportedLookAndFeelException;
  * @author Toshiba
  */
 public class SecureEmailClient {
+    public static String APP_NAME = "Joker";
+    public static String APP_SLOGAN = "It's not about cryptography. It's about sending a message";
 
     /**
      * @param args the command line arguments

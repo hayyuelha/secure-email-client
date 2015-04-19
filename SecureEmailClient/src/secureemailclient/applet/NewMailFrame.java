@@ -43,6 +43,7 @@ public class NewMailFrame extends javax.swing.JFrame {
         sf = new SignFrame();
         bcf = new BlockCipherKeyFrame();
         initComponents();
+        setTitle(SecureEmailClient.APP_NAME + " - New Mail");
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     }
 

@@ -19,6 +19,7 @@ public class BlockCipherKeyFrame extends javax.swing.JFrame {
      */
     public BlockCipherKeyFrame() {
         initComponents();
+        setTitle(SecureEmailClient.APP_NAME + " - Encrypt Mail");
         this.setDefaultCloseOperation(HIDE_ON_CLOSE);
     }
     

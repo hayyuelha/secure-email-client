@@ -15,6 +15,7 @@ import java.io.StringReader;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
@@ -33,19 +34,18 @@ import secureemailclient.crypto.ecc.PublicKey;
  */
 public class ViewMailFrame extends javax.swing.JFrame {
 
-    private Message message;
-
     /**
      * Creates new form ViewMailFrame
      */
-    public ViewMailFrame(Message message) {
+    public ViewMailFrame(String messageId) {
         initComponents();
 
+        setTitle(SecureEmailClient.APP_NAME + " - View Mail");
         // 
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
         // load message
-        loadMessage(message);
+        loadMessage(messageId);
     }
 
     /**
@@ -99,8 +99,18 @@ public class ViewMailFrame extends javax.swing.JFrame {
         jLabelDate.setText("date");
 
         jButtonReply.setText("Reply");
+        jButtonReply.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonReplyActionPerformed(evt);
+            }
+        });
 
         jButtonForward.setText("Forward");
+        jButtonForward.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonForwardActionPerformed(evt);
+            }
+        });
 
         jButtonDecrypt.setText("Decrypt");
         jButtonDecrypt.addActionListener(new java.awt.event.ActionListener() {
@@ -252,53 +262,68 @@ public class ViewMailFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButtonVerifyActionPerformed
 
-    public void loadMessage(Message message) {
-        this.message = message;
+    private void jButtonReplyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonReplyActionPerformed
+        JOptionPane.showMessageDialog(rootPane, "Replying email is not available in this beta version");
+    }//GEN-LAST:event_jButtonReplyActionPerformed
+
+    private void jButtonForwardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonForwardActionPerformed
+        JOptionPane.showMessageDialog(rootPane, "Forwarding email is not available in this beta version");
+    }//GEN-LAST:event_jButtonForwardActionPerformed
+
+    public void loadMessage(String messageId) {
+        Map messageDetails = GmailHelper.getMessageDetails(GmailAuth.getService(), messageId);
+        
+        jLabelDate.setText(toHtml((String)messageDetails.get("date")));
+        jLabelFrom.setText(toHtml((String)messageDetails.get("from")));
+        jLabelTo.setText(toHtml((String)messageDetails.get("to")));
+        jLabelSubject.setText(toHtml((String)messageDetails.get("subject")));
+        jTextAreaBody.setText((String)messageDetails.get("body"));
 
         // get message components
-        try {
-            MessagePart payload = message.getPayload();
-
-            String date = null, from = null, to = null, subject = null, body = null;
-
-            List<MessagePartHeader> headers = payload.getHeaders();
-            for (MessagePartHeader header : headers) {
-                switch (header.getName()) {
-                    case "To":
-                        to = header.getValue();
-                        break;
-                    case "From":
-                        from = header.getValue();
-                        break;
-                    case "Subject":
-                        subject = header.getValue();
-                        break;
-                    case "Date":
-                        date = header.getValue();
-                        break;
-                }
-            }
-
+//        try {
+//            MessagePart payload = message.getPayload();
+//
+//            String date = null, from = null, to = null, subject = null, body = null;
+//
+//            List<MessagePartHeader> headers = payload.getHeaders();
+//            for (MessagePartHeader header : headers) {
+//                switch (header.getName()) {
+//                    case "To":
+//                        to = header.getValue();
+//                        break;
+//                    case "From":
+//                        from = header.getValue();
+//                        break;
+//                    case "Subject":
+//                        subject = header.getValue();
+//                        break;
+//                    case "Date":
+//                        date = header.getValue();
+//                        break;
+//                }
+//            }
+//
+//            System.out.println(payload.toPrettyString());
+//            
 //            List<MessagePart> parts = payload.getParts();
-//            body = "";
+////            body = "";
 //            if (parts == null) {
-            body = new String(payload.getBody().decodeData(), "UTF-8");
+//                body = new String(payload.getBody().decodeData(), "UTF-8");
 //            } else {
 //                if (!parts.isEmpty()) {
 //                    body = new String(parts.get(0).getBody().decodeData(), "UTF-8");
 //                }
 //            }
-            System.out.println(payload.toPrettyString());
-
-            jLabelDate.setText(toHtml(date));
-            jLabelFrom.setText(toHtml(from));
-            jLabelTo.setText(toHtml(to));
-            jLabelSubject.setText(toHtml(subject));
-            jTextAreaBody.setText(body);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//
+//            jLabelDate.setText(toHtml(date));
+//            jLabelFrom.setText(toHtml(from));
+//            jLabelTo.setText(toHtml(to));
+//            jLabelSubject.setText(toHtml(subject));
+//            jTextAreaBody.setText(body);
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 
     public void decrypt(byte[] key) {

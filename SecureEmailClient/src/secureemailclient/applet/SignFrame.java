@@ -32,6 +32,7 @@ public class SignFrame extends javax.swing.JFrame {
     public SignFrame() {
         initComponents();
         
+        setTitle(SecureEmailClient.APP_NAME + " - Sign Mail");
         this.setDefaultCloseOperation(HIDE_ON_CLOSE);
     }
     

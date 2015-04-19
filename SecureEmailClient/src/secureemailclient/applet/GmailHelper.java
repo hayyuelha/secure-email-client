@@ -9,13 +9,20 @@ import com.google.api.client.util.Base64;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.ListMessagesResponse;
 import com.google.api.services.gmail.model.Message;
+import com.google.api.services.gmail.model.MessagePart;
+import com.google.api.services.gmail.model.MessagePartHeader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import javax.mail.Address;
 import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.Part;
 import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
@@ -107,7 +114,9 @@ public class GmailHelper {
                 .setLabelIds(labelIds).execute();
 
         List<Message> messages = new ArrayList<>();
-        if (limit == 0) limit = Integer.MAX_VALUE;
+        if (limit == 0) {
+            limit = Integer.MAX_VALUE;
+        }
         while (response.getMessages() != null && messages.size() < limit) {
             messages.addAll(response.getMessages());
             if (response.getNextPageToken() != null) {
@@ -119,13 +128,15 @@ public class GmailHelper {
             }
             //System.out.println("masuk blok fetching, response is not null");
         }
-        
+
         List<Message> allMessages = new ArrayList<>();
-        
+
         MimeMessage m;
         for (Message message : messages) {
             allMessages.add(getMessage(service, userId, message.getId()));
-            if (allMessages.size() >= limit) break;
+            if (allMessages.size() >= limit) {
+                break;
+            }
 //            System.out.println(message.toPrettyString());
 //            m = getMimeMessage(service, userId, message.getId());
         }
@@ -135,7 +146,7 @@ public class GmailHelper {
 
     public static Message getMessage(Gmail service, String userId, String messageId)
             throws IOException {
-        Message message = service.users().messages().get(userId, messageId).execute();
+        Message message = service.users().messages().get(userId, messageId).setFormat("full").execute();
 
 //        System.out.println("Message snippet: " + message.getSnippet());
         return message;
@@ -153,6 +164,105 @@ public class GmailHelper {
         MimeMessage email = new MimeMessage(session, new ByteArrayInputStream(emailBytes));
         System.out.println(email.getContentType());
         return email;
+    }
+
+    public static Map getMessageDetails(Gmail service, String messageId) {
+        Map<String, Object> messageDetails = new HashMap<String, Object>();
+        try {
+            Message message = service.users().messages().get("me", messageId).setFormat("raw").execute();
+
+            byte[] emailBytes = Base64.decodeBase64(message.getRaw());
+
+            Properties props = new Properties();
+            Session session = Session.getDefaultInstance(props, null);
+
+            MimeMessage email = new MimeMessage(session, new ByteArrayInputStream(emailBytes));
+            messageDetails.put("subject", email.getSubject());
+            messageDetails.put("from", email.getSender() != null ? email.getSender().toString() : "None");
+            Address[] recipients = email.getAllRecipients();
+            StringBuilder builder = new StringBuilder();
+            for (Address recipient : recipients) {
+                builder.append(recipient.toString()).append("; ");
+            }
+            messageDetails.put("to", builder.toString());
+            messageDetails.put("date", email.getSentDate() != null ? email.getSentDate().toString() : "None");
+            messageDetails.put("snippet", message.getSnippet());
+            messageDetails.put("threadId", message.getThreadId());
+            messageDetails.put("id", message.getId());
+            messageDetails.put("body", getText(email));
+
+            message = service.users().messages().get("me", messageId).setFormat("full").execute();
+            MessagePart payload = message.getPayload();
+            List<MessagePartHeader> headers = payload.getHeaders();
+            for (MessagePartHeader header : headers) {
+                switch (header.getName()) {
+                    case "To":
+                        messageDetails.put("to", header.getValue());
+                        break;
+                    case "From":
+                        messageDetails.put("from", header.getValue());
+                        break;
+                    case "Subject":
+                        messageDetails.put("subject", header.getValue());
+                        break;
+                    case "Date":
+                        messageDetails.put("date", header.getValue());
+                        break;
+                }
+            }
+            
+            
+        } catch (MessagingException ex) {
+            ex.printStackTrace();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return messageDetails;
+
+    }
+
+    /**
+     * Return the primary text content of the message.
+     */
+    private static String getText(Part p) throws
+            MessagingException, IOException {
+        if (p.isMimeType("text/*")) {
+            String s = (String) p.getContent();
+            return s;
+        }
+
+        if (p.isMimeType("multipart/alternative")) {
+            // prefer html text over plain text
+            Multipart mp = (Multipart) p.getContent();
+            String text = null;
+            for (int i = 0; i < mp.getCount(); i++) {
+                Part bp = mp.getBodyPart(i);
+                if (bp.isMimeType("text/plain")) {
+                    if (text == null) {
+                        text = getText(bp);
+                    }
+                    continue;
+                } else if (bp.isMimeType("text/html")) {
+                    String s = getText(bp);
+                    if (s != null) {
+                        return s;
+                    }
+                } else {
+                    return getText(bp);
+                }
+            }
+            return text;
+        } else if (p.isMimeType("multipart/*")) {
+            Multipart mp = (Multipart) p.getContent();
+            for (int i = 0; i < mp.getCount(); i++) {
+                String s = getText(mp.getBodyPart(i));
+                if (s != null) {
+                    return s;
+                }
+            }
+        }
+
+        return null;
     }
 
 }
