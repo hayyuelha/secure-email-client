@@ -9,11 +9,23 @@ import com.google.api.client.util.Base64;
 import com.google.api.services.gmail.model.Message;
 import com.google.api.services.gmail.model.MessagePart;
 import com.google.api.services.gmail.model.MessagePartHeader;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.StringReader;
+import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import org.apache.commons.lang3.StringEscapeUtils;
+import secureemailclient.crypto.CryptoHelper;
+import secureemailclient.crypto.blockcipher.BlockCipher;
+import secureemailclient.crypto.ecc.ECC;
+import secureemailclient.crypto.ecc.PairRS;
+import secureemailclient.crypto.ecc.PrivateKey;
+import secureemailclient.crypto.ecc.PublicKey;
 
 /**
  *
@@ -91,8 +103,18 @@ public class ViewMailFrame extends javax.swing.JFrame {
         jButtonForward.setText("Forward");
 
         jButtonDecrypt.setText("Decrypt");
+        jButtonDecrypt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonDecryptActionPerformed(evt);
+            }
+        });
 
         jButtonVerify.setText("Verify");
+        jButtonVerify.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonVerifyActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -159,6 +181,77 @@ public class ViewMailFrame extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jButtonDecryptActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDecryptActionPerformed
+        String body = jTextAreaBody.getText();
+        if (!CryptoHelper.isBase64Encoded(body)) {
+            JOptionPane.showMessageDialog(rootPane, "The body message cannot be decrypted!");
+            return;
+        }
+        byte[] ciphertext = Base64.decodeBase64(body);
+
+        (new MailDecryptFrame(this)).setVisible(true);
+
+    }//GEN-LAST:event_jButtonDecryptActionPerformed
+
+    private void jButtonVerifyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonVerifyActionPerformed
+        String body = jTextAreaBody.getText();
+        BufferedReader reader = new BufferedReader(new StringReader(body));
+        List<String> lines = new ArrayList<>();
+        try {
+            String line;
+            do {
+                line = reader.readLine();
+                if (line != null) {
+                    lines.add(line);
+                }
+            } while (line != null);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // check the last three lines
+        String[] signature = new String[3];
+        if (lines.size() < 3) {
+            signature = null;
+        } else {
+            for (int i = 0; i < 3; ++i) {
+                signature[i] = lines.get(lines.size() - 3 + i);
+            }
+        }
+
+        if (signature == null || !signature[0].equalsIgnoreCase("//DIGITAL SIGNATURE//")) {
+            JOptionPane.showMessageDialog(rootPane, "The body message is not signed!");
+            return;
+        }
+
+        // construct body without signature
+        String bodyWithoutSignature = body.substring(0, body.indexOf("\n//DIGITAL SIGNATURE//"));
+
+        PairRS rs = new PairRS(new BigInteger(signature[1], 16), new BigInteger(signature[2], 16));
+
+        PublicKey pk;
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle("Select Public Key");
+        int returnVal = chooser.showOpenDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            String path = chooser.getSelectedFile().getAbsolutePath();
+            pk = new PublicKey(path);
+        } else {
+            return;
+        }
+
+        try {
+            boolean verified = ECC.verify(bodyWithoutSignature, pk, rs);
+            if (verified) {
+                JOptionPane.showMessageDialog(rootPane, "The message is verified!");
+            } else {
+                JOptionPane.showMessageDialog(rootPane, "The message is not valid or the public key is incorrect!");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_jButtonVerifyActionPerformed
+
     public void loadMessage(Message message) {
         this.message = message;
 
@@ -186,22 +279,41 @@ public class ViewMailFrame extends javax.swing.JFrame {
                 }
             }
 
-            List<MessagePart> parts = payload.getParts();
-            body = "";
-            if (!parts.isEmpty()) {
-                body = new String(parts.get(0).getBody().decodeData(), "UTF-8");
-            }
+//            List<MessagePart> parts = payload.getParts();
+//            body = "";
+//            if (parts == null) {
+            body = new String(payload.getBody().decodeData(), "UTF-8");
+//            } else {
+//                if (!parts.isEmpty()) {
+//                    body = new String(parts.get(0).getBody().decodeData(), "UTF-8");
+//                }
+//            }
+            System.out.println(payload.toPrettyString());
 
             jLabelDate.setText(toHtml(date));
             jLabelFrom.setText(toHtml(from));
             jLabelTo.setText(toHtml(to));
             jLabelSubject.setText(toHtml(subject));
             jTextAreaBody.setText(body);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    
+
+    public void decrypt(byte[] key) {
+        String body = jTextAreaBody.getText();
+        byte[] ciphertext = Base64.decodeBase64(body);
+        byte[] plaintext;
+        try {
+            plaintext = (new BlockCipher()).decrypt(ciphertext, key);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(rootPane, "The passphrase is incorrect!");
+            return;
+        }
+        jTextAreaBody.setText(new String(plaintext));
+    }
+
     public String toHtml(String s) {
         return "<html>" + StringEscapeUtils.escapeHtml4(s) + "</html>";
     }

@@ -1,4 +1,4 @@
-package secureemailclient.applet;
+package secureemailclient.crypto.ecc;
 
 /**
  * The class will contain a pair of public key and private key.

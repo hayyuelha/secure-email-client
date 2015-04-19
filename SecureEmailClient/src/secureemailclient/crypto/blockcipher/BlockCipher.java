@@ -4,12 +4,13 @@
  * and open the template in the editor.
  */
 
-package secureemailclient.applet;
+package secureemailclient.crypto.blockcipher;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import secureemailclient.crypto.CryptoHelper;
 
 /**
  *
@@ -34,7 +35,8 @@ public class BlockCipher {
     public byte[] encrypt(byte[] data, byte[] key) {
         generateKey(key);
         
-        byte[][] splitted = new byte[(data.length + 31) / 32][];
+        data = CryptoHelper.pad(data, 32);
+        byte[][] splitted = new byte[data.length / 32][];
         
         //Split
         int i, j, k;
@@ -45,13 +47,7 @@ public class BlockCipher {
             
             for (j=0; j<32; j++)
             {
-                if (k < data.length)
-                {
-                    splitted[i][j] = data[k];
-                } else {
-                    splitted[i][j] = 0;
-                }
-                k++;
+                splitted[i][j] = data[k++];
             }
         }
         
@@ -163,7 +159,7 @@ public class BlockCipher {
             }
         }
         
-        return out;
+        return CryptoHelper.unpad(out, 32);
     }
     
     /**

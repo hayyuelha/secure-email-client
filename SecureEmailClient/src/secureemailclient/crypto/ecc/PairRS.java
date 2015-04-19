@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package secureemailclient.applet;
+package secureemailclient.crypto.ecc;
 
 import java.math.BigInteger;
 

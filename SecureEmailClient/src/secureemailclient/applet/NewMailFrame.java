@@ -3,9 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package secureemailclient.applet;
 
+import com.google.api.client.util.Base64;
+import secureemailclient.crypto.ecc.PairRS;
+import secureemailclient.crypto.ecc.ECC;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -13,6 +15,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import secureemailclient.crypto.blockcipher.BlockCipher;
 
 /**
  *
@@ -23,21 +26,22 @@ public class NewMailFrame extends javax.swing.JFrame {
     /**
      * Creates new form NewMailFrame
      */
-    
     public static byte[] hexStringToByteArray(String s) {
         int len = s.length();
         byte[] data = new byte[len / 2];
         for (int i = 0; i < len; i += 2) {
             data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
-                                 + Character.digit(s.charAt(i+1), 16));
+                    + Character.digit(s.charAt(i + 1), 16));
         }
         return data;
     }
-    
+
     private SignFrame sf;
-    
+    private BlockCipherKeyFrame bcf;
+
     public NewMailFrame() {
         sf = new SignFrame();
+        bcf = new BlockCipherKeyFrame();
         initComponents();
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     }
@@ -80,7 +84,12 @@ public class NewMailFrame extends javax.swing.JFrame {
             }
         });
 
-        jComboBoxEncryption.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "None", "Cipher1", "Cipher2", "Cipher3" }));
+        jComboBoxEncryption.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "None", "OZ Block Cipher" }));
+        jComboBoxEncryption.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                jComboBoxEncryptionItemStateChanged(evt);
+            }
+        });
 
         jLabel5.setText("Encryption");
 
@@ -133,7 +142,7 @@ public class NewMailFrame extends javax.swing.JFrame {
                             .addComponent(jTextFieldSubject)))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jButtonSend)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 93, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 55, Short.MAX_VALUE)
                         .addComponent(jLabel5)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jComboBoxEncryption, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -184,7 +193,9 @@ public class NewMailFrame extends javax.swing.JFrame {
         String bcc = jTextFieldBcc.getText();
         String subject = jTextFieldSubject.getText();
         String body = jTextAreaBody.getText();
-        if(jComboBoxSignature.getSelectedItem().toString().equals("ECDSA")){
+
+        // Sign mail
+        if (jComboBoxSignature.getSelectedItem().toString().equals("ECDSA")) {
             try {
                 PairRS rs = ECC.createSignature(body, sf.getPrivateKey());
 
@@ -192,12 +203,23 @@ public class NewMailFrame extends javax.swing.JFrame {
 
                 String s = rs.getSString();
 
-                body+="\n//DIGITAL SIGNATURE//\n"+r+"\n"+s;
+                body += "\n//DIGITAL SIGNATURE//\n" + r + "\n" + s;
 
             } catch (Exception ex) {
+                ex.printStackTrace();
                 Logger.getLogger(NewMailFrame.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+
+        // Encrypt mail
+        if (jComboBoxEncryption.getSelectedIndex() == 1) {
+            // OZ Block Cipher
+            byte[] blockCipherKey = bcf.getKey();
+            if (blockCipherKey != null) {
+                body = Base64.encodeBase64String((new BlockCipher()).encrypt(body.getBytes(), blockCipherKey));
+            }
+        }
+
         try {
             MimeMessage message = GmailHelper.createEmail(to, "me", subject, body);
             GmailHelper.sendMessage(GmailAuth.getService(), "me", message);
@@ -206,7 +228,7 @@ public class NewMailFrame extends javax.swing.JFrame {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
+
         // hide this frame
         this.dispose();
     }//GEN-LAST:event_jButtonSendActionPerformed
@@ -216,11 +238,16 @@ public class NewMailFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_jTextFieldCcActionPerformed
 
     private void jComboBoxSignatureActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxSignatureActionPerformed
-        // TODO add your handling code here:
-        if(jComboBoxSignature.getSelectedItem().toString().equals("ECDSA")){
+        if (jComboBoxSignature.getSelectedItem().toString().equals("ECDSA")) {
             sf.setVisible(true);
         }
     }//GEN-LAST:event_jComboBoxSignatureActionPerformed
+
+    private void jComboBoxEncryptionItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jComboBoxEncryptionItemStateChanged
+        if (jComboBoxEncryption.getSelectedIndex() == 1) {
+            bcf.setVisible(true);
+        }
+    }//GEN-LAST:event_jComboBoxEncryptionItemStateChanged
 
     /**
      * @param args the command line arguments

@@ -1,4 +1,4 @@
-package secureemailclient.applet;
+package secureemailclient.crypto.ecc;
 
 import java.math.BigInteger;
 

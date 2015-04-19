@@ -1,8 +1,10 @@
-package secureemailclient.applet;
+package secureemailclient.crypto.ecc;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Random;
+import secureemailclient.crypto.CryptoHelper;
+import secureemailclient.crypto.sha1.SHA1;
 
 /**
  * This class implements El Gamal Public-Key Cryptography using Elliptic Curve.
@@ -187,7 +189,7 @@ public class ECC {
         int cipherTextBlockSize = getCipherTextBlockSize(c);
         
         // Pad the plainText
-        byte[] padded = pad(plainText, blockSize);
+        byte[] padded = CryptoHelper.pad(plainText, blockSize);
         
         // Chunk the plainText into blocks.
         byte[][] block = new byte[padded.length / blockSize][blockSize];
@@ -302,7 +304,7 @@ public class ECC {
                 plainText[i * blockSize + j] = decoded[j + decoded.length - blockSize];
             }
         }
-        plainText = unpad(plainText, blockSize);
+        plainText = CryptoHelper.unpad(plainText, blockSize);
         
         finalizeExecutionTime();
         return plainText;
@@ -410,45 +412,7 @@ public class ECC {
         return c.getP().bitLength() / 8 + 5;
     }
     
-    /**
-     * Pad the array of byte b so its length will be multiple of blockSize.
-     * 
-     * There will be at least one byte padded. The last byte will contain the
-     * number of padded bytes.
-     * 
-     * @param b
-     * @return 
-     */
-    private static byte[] pad(byte[] b, int blockSize) {
-        int paddedLength = blockSize - (b.length % blockSize);
-        byte[] padded = new byte[b.length + paddedLength];
-        for (int i = 0; i < b.length; ++i) {
-            padded[i] = b[i];
-        }
-        for (int i = 0; i < paddedLength - 1; ++i) {
-            padded[b.length + i] = 0;
-        }
-        padded[padded.length - 1] = (byte)paddedLength;
-        
-        return padded;
-    }
-    
-    /**
-     * Recover the original array of byte given the padded array of byte b.
-     * 
-     * @param b
-     * @param blockSize
-     * @return 
-     */
-    private static byte[] unpad(byte[] b, int blockSize) {
-        int paddedLength = b[b.length - 1];
-        byte[] unpadded = new byte[b.length - paddedLength];
-        for (int i = 0; i < unpadded.length; ++i) {
-            unpadded[i] = b[i];
-        }
-        return unpadded;
-    }
-    
+
     /**
      * Find a point inside the curve with the x-coordinate equals
      * x * AUXILIARY_CONSTANT + k, where k is as small as possible.

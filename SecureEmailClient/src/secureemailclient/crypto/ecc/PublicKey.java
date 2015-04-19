@@ -1,5 +1,7 @@
-package secureemailclient.applet;
+package secureemailclient.crypto.ecc;
 
+import secureemailclient.crypto.ecc.ECPoint;
+import secureemailclient.crypto.ecc.EllipticCurve;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintStream;

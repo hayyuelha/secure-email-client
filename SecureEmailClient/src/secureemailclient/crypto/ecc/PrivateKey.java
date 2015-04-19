@@ -1,5 +1,7 @@
-package secureemailclient.applet;
+package secureemailclient.crypto.ecc;
 
+import secureemailclient.crypto.ecc.ECPoint;
+import secureemailclient.crypto.ecc.EllipticCurve;
 import java.io.File;
 import java.io.PrintStream;
 import java.math.BigInteger;
@@ -91,5 +93,29 @@ public class PrivateKey {
         }catch (Exception e){
             e.printStackTrace();
         }
+    }
+    
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        
+        BigInteger a = c.getA();
+        BigInteger b = c.getB();
+        BigInteger p = c.getP();
+        BigInteger n = c.getN();
+        BigInteger g1 = c.getBasePoint().x;
+        BigInteger g2 = c.getBasePoint().y;
+        try {
+            builder.append(a.toString(16)).append("\n");
+            builder.append(b.toString(16)).append("\n");
+            builder.append(p.toString(16)).append("\n");
+            builder.append(n.toString(16)).append("\n");
+            builder.append(g1.toString(16)).append("\n");
+            builder.append(g2.toString(16)).append("\n");
+            builder.append(k.toString(16)).append("\n");
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return builder.toString();
     }
 }
