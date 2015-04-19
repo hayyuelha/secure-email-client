@@ -7,6 +7,8 @@
 package secureemailclient.applet;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.swing.UIManager;
@@ -21,7 +23,21 @@ public class NewMailFrame extends javax.swing.JFrame {
     /**
      * Creates new form NewMailFrame
      */
+    
+    public static byte[] hexStringToByteArray(String s) {
+        int len = s.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
+                                 + Character.digit(s.charAt(i+1), 16));
+        }
+        return data;
+    }
+    
+    private SignFrame sf;
+    
     public NewMailFrame() {
+        sf = new SignFrame();
         initComponents();
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     }
@@ -71,6 +87,11 @@ public class NewMailFrame extends javax.swing.JFrame {
         jLabel6.setText("Sign Mail");
 
         jComboBoxSignature.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "No", "ECDSA" }));
+        jComboBoxSignature.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBoxSignatureActionPerformed(evt);
+            }
+        });
 
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel1.setText("To:");
@@ -163,7 +184,20 @@ public class NewMailFrame extends javax.swing.JFrame {
         String bcc = jTextFieldBcc.getText();
         String subject = jTextFieldSubject.getText();
         String body = jTextAreaBody.getText();
-        
+        if(jComboBoxSignature.getSelectedItem().toString().equals("ECDSA")){
+            try {
+                PairRS rs = ECC.createSignature(body, sf.getPrivateKey());
+
+                String r = rs.getRString();
+
+                String s = rs.getSString();
+
+                body+="\n//DIGITAL SIGNATURE//\n"+r+"\n"+s;
+
+            } catch (Exception ex) {
+                Logger.getLogger(NewMailFrame.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
         try {
             MimeMessage message = GmailHelper.createEmail(to, "me", subject, body);
             GmailHelper.sendMessage(GmailAuth.getService(), "me", message);
@@ -180,6 +214,13 @@ public class NewMailFrame extends javax.swing.JFrame {
     private void jTextFieldCcActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldCcActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextFieldCcActionPerformed
+
+    private void jComboBoxSignatureActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxSignatureActionPerformed
+        // TODO add your handling code here:
+        if(jComboBoxSignature.getSelectedItem().toString().equals("ECDSA")){
+            sf.setVisible(true);
+        }
+    }//GEN-LAST:event_jComboBoxSignatureActionPerformed
 
     /**
      * @param args the command line arguments
